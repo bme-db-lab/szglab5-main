@@ -8,4 +8,4 @@ A Szoftver laboratorium 5 es Adatbazisok labor tantargyak adminisztracios rendsz
 [Eredeti repository](https://github.com/bme-db-lab/szglab5-backend)
 
 ### Docs
-A projekthez kapcsolodo dokumentaciok Mardown formatumban.
+A projekthez kapcsolodo dokumentaciok Markdown formatumban.
