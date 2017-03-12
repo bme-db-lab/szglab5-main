@@ -4,3 +4,6 @@
 [submodule "backend"]
 	path = backend
 	url = https://github.com/bme-db-lab/szglab5-backend
+[submodule "teszt"]
+	path = test
+	url = https://github.com/bme-db-lab/szglab5-test
