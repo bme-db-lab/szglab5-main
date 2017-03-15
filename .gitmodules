@@ -1,9 +1,9 @@
 [submodule "frontend"]
 	path = frontend
-	url = https://github.com/bme-db-lab/szglab5-frontend
+	url = git@github.com:bme-db-lab/szglab5-frontend.git
 [submodule "backend"]
 	path = backend
-	url = https://github.com/bme-db-lab/szglab5-backend
+	url = git@github.com:bme-db-lab/szglab5-backend.git
 [submodule "teszt"]
 	path = test
-	url = https://github.com/bme-db-lab/szglab5-test
+	url = git@github.com:bme-db-lab/szglab5-test.git
