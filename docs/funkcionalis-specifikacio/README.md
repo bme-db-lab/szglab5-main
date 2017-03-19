@@ -236,7 +236,7 @@ attribútumokat és azok jelentését.
 
     17. méréshelyek és mérésvezetők összerendelése
 
-        *(Opcionális)* Támogassa a több--több összerendelést, ui. előfordulhat
+        Támogassa a több--több összerendelést, ui. előfordulhat
         az, hogy egy mérést több mérésvezető tart (pl. idén a németeseknél),
         illetve az is, hogy egy mérésvezető több méréshelyért felel egyazon
         időben.
@@ -255,26 +255,26 @@ attribútumokat és azok jelentését.
         Minden hallgatónak 1 méréshez 1 feladattípusa van, de előfordulhat,
         hogy a hallgató az év elején egy A feladattípust csinál és a pótmérés
         alkalmával egy B feladattípust kap!
-
+        
 5. Eredményekhez, statisztikákhoz tartozó funkciók:
 
-    21. Részletes eredmények listázása csoportonként
+    22. Részletes eredmények listázása csoportonként
 
-    22. Részletes eredmények listázása hallgatóként
+    23. Részletes eredmények listázása hallgatóként
 
-    23. Összesített eredmények listázása csoportonként
+    24. Összesített eredmények listázása csoportonként
 
-    24. Összesített eredmények listázása hallgatóként
+    25. Összesített eredmények listázása hallgatóként
 
-    25. Házi feladatok esetén a feladattípusonként a nem véglegesített
+    26. Házi feladatok esetén a feladattípusonként a nem véglegesített
         jegyzőkönyvek számának listázása javítók szerint
 
-    26. Lezáratlan mérésjegyek számának (van jegyzőkönyvjegy, de nincs
+    27. Lezáratlan mérésjegyek számának (van jegyzőkönyvjegy, de nincs
         laborjegy) listázása mérésvezetők szerint
 
-    27. Javítók terheltségének listázása
+    28. Javítók terheltségének listázása
 
-    28. Eredmények exportálása CSV állományba
+    29. Eredmények exportálása CSV állományba
 
         *(Opcionális)* Neptun export
 
@@ -282,7 +282,7 @@ attribútumokat és azok jelentését.
 
     A szünnapok kezelését nem várjuk el a projekttől!
 
-    28. Hallgatói jegyzőkönyvek leadásának határidejének módosítása
+    30. Hallgatói jegyzőkönyvek leadásának határidejének módosítása
 
         - 1 konkrét hallgató, 1 konkrét határidejét is lehessen állítani,
 
@@ -291,12 +291,12 @@ attribútumokat és azok jelentését.
 
         - lehessen globálisan állítani a jövőbeni határidőket
 
-    29. Jegyzőkönyv értékelésének határidejének változtatása mérésenként,
+    31. Jegyzőkönyv értékelésének határidejének változtatása mérésenként,
         illetve globálisan
 
 7. Jegyzőkönyvek kezelése:
 
-    30. Jegyzőkönyv archiválása (plágiumkereséshez)
+    32. Jegyzőkönyv archiválása (plágiumkereséshez)
 
         GIT esetén is szükségünk lesz egy megoldásra, ami a plágiumkereső
         szolgáltatás által feldolgozható adatot képes exportálni az admin
@@ -304,36 +304,38 @@ attribútumokat és azok jelentését.
 
 8. Hírek, hirdetmények kezelése:
 
-    31. Hírek listázása
+    33. Hírek listázása
 
-    32. Hírek létrehozása
+    34. Hírek létrehozása
 
-    33. Hírek szerkesztése
+    35. Hírek szerkesztése
 
         Be lehessen állítani, hogy egy adott hír melyik szerepkörnél
         látszódjon.
 
-    34. Hírek törlése
+    36. Hírek törlése
 
-    35. *(Opcionális)* Hírek kezeljék a MD formátumot
+    37. *(Opcionális)* Hírek kezeljék a MD formátumot
 
 9. Véglegesítés visszavonása
 
-    36. Beugró esetén (naplózás!)
+    38. Beugró esetén (naplózás!)
 
-    37. Jegyzőkönyv esetén (naplózás!)
+    39. Jegyzőkönyv esetén (naplózás!)
 
-    38. Végleges jegy esetén (naplózás!)
+    40. Végleges jegy esetén (naplózás!)
 
 11. SQL szkriptek futtatása (*Opcionális*, ha mindent lehet frontendről, akkor ne)
 
 12. Beugrókkal kapcsolatos funkciók:
 
-    39. Új kérdés hozzáadása
+    41. Új kérdés hozzáadása
 
-    40. Kérdés módosítása
+    42. Kérdés módosítása
 
-    41. 4-7 darab kérdés kiválasztása és nyomtatható fájl létrehozása
+    43. 4-7 darab kérdés kiválasztása és nyomtatható fájl létrehozása
+
+13. A https://db.bme.hu/szglab5-generator/ címen elérhető feladatlap-generátor teljes funkcionalitásának elérése
 
 #### Képernyőképek
 
@@ -507,6 +509,8 @@ attribútumokat és azok jelentését.
 
         Mint fent
 
+5. A https://db.bme.hu/szglab5-generator/ címen elérhető feladatlap-generátor teljes funkcionalitásának elérése
+
 #### Képernyőképek
 
 ![Javító szerepkör](image_14.png)
@@ -535,10 +539,14 @@ attribútumokat és azok jelentését.
 
     5. A listában lehessen egyszerre vagy egyesével véglegesíteni az egyes
        pontszámokat, jegyeket
+       
+    6. Adott méréshez helyettesítő mérésvezető rendelése önmaga helyett
+    
+        *(Opcionális)* E-mail értesítés az érintettnek
 
 3. Méréshez (hallgatóhoz) tartozó funkciók
 
-    6. Mérés részletes adatainak megjeleneítése
+    7. Mérés részletes adatainak megjeleneítése
 
         - hallgató neve
 
@@ -556,33 +564,35 @@ attribútumokat és azok jelentését.
 
         - git URL lekérdezése, címkékkel együtt
 
-    10. Pontszámok, jegyek és megjegyzések véglegesítése külön-külön és együtt
+    8. Pontszámok, jegyek és megjegyzések véglegesítése külön-külön és együtt
 
-    12. Labor érdemjegy módosítása
+    9. Labor érdemjegy módosítása
 
-    14. Labor megjegyzésének módosítása
+    10. Labor megjegyzésének módosítása
 
-    15. Labor megjegyzésének törlése
+    11. Labor megjegyzésének törlése
 
-    16. IMSc pontok módosítása
+    12. IMSc pontok módosítása
 
-    17. Hallgató áthelyezése másik laborba
+    13. Hallgató áthelyezése másik laborba
 
         - akár utólag is!
 
 4. Beugrókkal kapcsolatos funkciók
 
-    18. Beugrók listázása, lekérdezése
+    14. Beugrók listázása, lekérdezése
 
-    19. Új beugró hozzáadása
+    15. Új beugró hozzáadása
 
-    20. Beugrók szerkesztése
+    16. Beugrók szerkesztése
 
-    21. Beugrók törlése
+    17. Beugrók törlése
 
-    22. Beugrók kiválasztása és nyomtatása
+    18. Beugrók kiválasztása és nyomtatása
 
         - *(Opcionális)* ideális esetben egy PDF dokumentum lenne a jó megoldás
+
+5. A https://db.bme.hu/szglab5-generator/ címen elérhető feladatlap-generátor teljes funkcionalitásának elérése
 
 #### Képernyőképek
 
