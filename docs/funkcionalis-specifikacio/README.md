@@ -335,8 +335,6 @@ attribútumokat és azok jelentését.
 
     43. 4-7 darab kérdés kiválasztása és nyomtatható fájl létrehozása
 
-13. A https://db.bme.hu/szglab5-generator/ címen elérhető feladatlap-generátor teljes funkcionalitásának elérése
-
 #### Képernyőképek
 
 ![Statisztikák](image_2.png)
@@ -509,7 +507,6 @@ attribútumokat és azok jelentését.
 
         Mint fent
 
-5. A https://db.bme.hu/szglab5-generator/ címen elérhető feladatlap-generátor teljes funkcionalitásának elérése
 
 #### Képernyőképek
 
@@ -592,7 +589,10 @@ attribútumokat és azok jelentését.
 
         - *(Opcionális)* ideális esetben egy PDF dokumentum lenne a jó megoldás
 
-5. A https://db.bme.hu/szglab5-generator/ címen elérhető feladatlap-generátor teljes funkcionalitásának elérése
+
+### Oktató szerepkör (Admin, Mérésvezető, Javító uniója ennek részhalmaza) közös funkciói
+
+1. A https://db.bme.hu/szglab5-generator/ címen elérhető feladatlap-generátor teljes funkcionalitásának elérése
 
 #### Képernyőképek
 
