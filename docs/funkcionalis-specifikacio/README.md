@@ -1,402 +1,601 @@
-**„Adatbázisok Labor" adminisztrációs rendszer funkcionális specifikáció**
+# „Adatbázisok Labor" adminisztrációs rendszer funkcionális specifikáció
 
-1. Bejelentkezés
+## Szerepkörök
 
-![image alt text](image_0.png)
+- *Hallgató* — a rendszerben szereplő, éves szinten körülbelül 300-600
+  felhasználó közül a legtöbb hallgatói szerepkörrel rendelkezik. A rendszer
+  folyamatainak csak egy kis részéhez kapcsolódik, illetve jogosultságai csak a
+  felhasználóhoz közvetlenül hozzátartozó adatok megtekintésére hatalmazzák
+  fel. 
 
-Bejelentkezés
+- *Mérésvezető* (laborvezető, demonstrátor) — éves szinten körülbelül 30-50
+  felhasználót érint, akiknek feladata a gyakorlatok levezetése, illetve a
+  mérésen megjelent hallgatók osztályzása, értékelése. 
 
-Az alkalmazásba Sibboleth-tel, illetve felhasználónév és jelszó páros megadásával lehet belépni. Sikeres authentikáció után a felhasználó számára betöltődik az ő szerepköréhez tartozó felület. Új jelszót lehet kérni, ha a felhasználó elfejeltette volna azt.
+- *Javító* (értékelő) — az ugyancsak 30-50 felhasználót érintő szerepkörhöz a
+  jegyzőkönyvek javítással kapcsolatos feladatok tartoznak (letöltés,
+  értékelés, stb.). 
 
-2. Általános funkciók
+- *Adminisztrátor* — a rendszer működésével, jogosultságok és felhasználók
+  menedzsmentjével, stb. kapcsolatos funkciók tartoznak az adminisztrátor
+  szerepkörű felhasználókhoz. A hozzáférések minőségének és mértékének
+  megfelelően adminisztrátorból csak viszonylag kevés, várhatóan 1-2-re van
+  szükség egy félév során. 
 
-1. Hírek olvasása
+- *Labor felelős* – az oktatási folyamat zavartalanságáért felelős személy,
+  akinek elsősorban a folyamatok monitorozásának lehetőségét kell biztosítani
+  olvasási jellegű általános hozzáférésekkel, meghatározott riportok
+  futtatásával.
 
-2. Kijelentkezés
+- *"Anonymous"* — mivel a teljes rendszer használata bejelentkezéshez kötött,
+  az azonosítatlan felhasználóknak alapvetően csak a bejelentkező oldal
+  elérését kell biztosítani.
 
-3. Felhasználói beállítások
+## Általános elvárások
 
-4. Ha nincs joga az oldalhoz, és nincs bejelentkezve, akkor átirányítás a belépésre. Ha már belépett, de nincs joga, akkor hiba kiírása. Belépés után mindig oda írányítsa vissza, mint ahol belépett.
+A rendszerben tárolt adatokkal kapcsolatban vannak általános elvárásaink, ezek
+az alábbiak:
 
-3. Admin szerepkör funkcióinak felsorolása
+- *jelszó*
+    * generált jelszó esetén kerüljük a 0 (nulla), O (nagy-omega), 1 (egy), l
+      (kis lima) és I (nagy-india) betűk használatát
+    * engedjü, de ne követeljünk meg bizonyos karakterosztályok használatát --
+      lehessen pl. akár emojit is megadni, de ne követeljük meg azt, hogy
+      legyen benne legalább egy szám, nagybetű, stb.
+    * minimálisan 12 karakter legyen a jelszó és tegyünk javaslatot a jelkód,
+      -mondat használatára a jelszó változtató oldalon.
+    * a jelszó tárolásánál PBKDF2, időhöz kötött, lenyomatképző algoritmust
+      szabad csak használni!
+    * a laboradmin rendszer eléréséhez szükséges jelszót nyíltan _tilos_ tárolni!
 
-![image alt text](image_1.png)
+- *azonosítók* -- hosszú távú, kontextus független azonosításra egyszerű
+  számokat nem érdemes használni, ilyen esetekben mindig UUID-t generáljunk
 
-Admin szerepkör funkciói
+- *lenyomatok* -- ha egy dokumentum, fájl, stb. lenyomatát kell tároljuk,
+  válasszunk jól működő, biztonságos algoritmust, pl. SHA-256.  Mindenképp
+  kerülendők: RC4, MD5, SHA1!
 
-1. Felhasználóval kapcsolatos folyamatok:
+- *napló* -- általános elvárás a rendszer működésével kapcsolatban az, hogy
+  minden adatváltozás (még ha feleslegesen is redundáns), de naplózásra
+  kerüljön.  Tehát ha az API felületen vagy konzolon keresztül bármilyen adat
+  megváltozik a rendszerben, arról készüljön naplóbejegyzés. *Opcionális*: ha
+  ez a napló újra beolvasható és előállítható belőle az aktuális
+  adatbázis-állapot az plusz pont.
 
-    1. adott jelszó beállítása, vagy véletlenszerű jelszó generálása
+## Fogalmak
 
-        1. (Jelszógenerálás esetén 0 és O illetve 1, l(L), I(i) betűk kerülendőek)
+**TODO** Ide kéne átvezetni az ER-ben már definiált fogalmakat, egyedeket,
+attribútumokat és azok jelentését.
 
-    2. e-mail cím manuális jóváhagyása
+- mérés / labor
 
-    3. új felhasználó felvétele
+## Folyamatok
 
-    4. felhasználó módosítása (TEST!!!! Naplózás)
+### Általános funkciók "anonymous" felhasználóként
 
-    5. jogosultságok megtekintése
+1.  Hírek olvasása (azonosítatlan felhasználóknak szánt hírek!)
 
-    6. jogosultságok hozzáadása
+2.  Bejelentkezés
 
-    7. jogosultságok módosítása
+    ![Bejelentkezés](image_0.png)
 
-    8. jogosultságok törlése
+    Az alkalmazásba Sibboleth-tel, illetve felhasználónév és jelszó páros
+    megadásával lehet belépni. Sikeres azonosítás után a felhasználó számára
+    betöltődik a szerepköréhez tartozó felület. Új jelszót lehet kérni, ha a
+    felhasználó elfelejetette volna azt.
 
-    9. keresés név alapján
+3.  Ha egy oldalt bejelentkezés nélkül próbálunk meg elérni, akkor
+    automatikusan a bejelentkezésre irányít a felület minket.  Sikeres
+    bejelentkezést követően az eredetileg megnyitott oldalra kerülünk.
 
-    10. keresés user név alapján
+4.  Ha be vagyunk jelentkezve, de nincs jogosultságunk elérni egy oldalt, akkor
+    "jogosultság ellenőrzés" hibát kapunk.
 
-    11. keresés azonosítószám alapján
+5.  Ha olyan oldalt próbálunk elérni, ami nem létezik, akkor "nem létezik"
+    hibát kapunk.
 
-    12. felhasználó megszemélyesítése
+### Általános funkciók (bejelentkezett felhasználóként)
+
+1.  Hírek olvasása (azonosítottaknak szánt hírek!)
+
+    A hírek megjelenítésére mindenképp legyen egy dedikált külön oldal,
+    menüpont.
+
+    *(Opcionális)* Új (fontos?) hírek esetén a belépést követően jelenjen meg
+    egy X-elhető popupban a legutolsó belépést követő hír vagy hírek száma egy
+    figyelmeztető üzenettel, ha több ilyen volt.
+
+2.  Kijelentkezés ![Kijelentkezés](image_20.png)
+
+    - A kijelentkezéssel a felhasználónak megszűnik a session-je, azaz a
+      (vissza) gomb nyomkodásával se' lehessen újra belépett állapotba kerülni.
+      Az elvárás az, hogy kijelentkezés után 1 visszalépést _követően_ ne
+      lehessen új, sikeresen lefutó, azonosított oldallekérést végrehajtani.
+
+    - A kijelentkezés után a felhasználó a bejelentkezés oldalra lesz
+      átirányítva.
+
+3.  Felhasználói beállítások és adatok ![Beállítások](image_18.png)
+
+    ![Beállítások](image_19.png)
+
+    - Felhasználó megtekintheti saját adatait
+
+        ...de nem módosíthatja saját nevét és neptun kódját.
+
+    - Felhasználó módosíthatja e-mail címét
+
+    - Amennyiben a felhasználó nem rendelkezik megadott e-mail címmel,
+      bejelentkezés után erre az oldalra irányítandó.
+
+        Ha megadta az e-mail címét, az eredetileg lekérdezett oldalra
+        irányítsuk át -- ahogyan a belépésnél is.
+
+    - Amennyiben változott a felhasználó e-mail címe, ellenőrző levél fog
+      kiküldésre kerülni. 
+
+        - Az ellenőrző e-mail időkorlátos, amennyiben a felhasználó nem erősíti
+          meg, az előző e-mail cím automatikusan visszaírásra kerül
+
+        - Ellenőrző e-mail kiküldését lehet újrakérni, amennyiben az nem
+          érkezett meg a felhasználónak.
+
+        - Hibás vagy felhasznált ellenőrző token esetén dobjon a rendszer
+          hibaüzenetet.
+
+    - Felhasználó módosíthatja jelszavát az aktuális, az új illetve az új
+      jelszó ellenőrzésére szolgáló ismétlés megadásával
+
+        Erről a változtatásról mindenképp küldjünk e-mail értesítést a
+        felhasználónak.
+
+    - Felhasználó feliratkozhat levelezőlistá(k)ra
+
+    - Felhasználó feliratkozhat e-mail alapú értesítésekre (új jegy, hír) 
+    
+    - Felhasználó megadhatja a saját SSH publikus kulcsát
+
+        Erről a változtatásról mindenképp küldjünk e-mail értesítést a
+        felhasználónak.
+
+
+### Admin szerepkör funkciói
+
+![Admin szerepkör](image_1.png)
+
+1. Felhasználóval kapcsolatos folyamatok
+
+    1.  adott jelszó beállítása
+
+        A jelszóval kapcsolatos ellenőrzések itt ne akadályozzanak, csak
+        figyelmeztessenek.  Tehát engedje a felület beállítani az "12345678"
+        jelszót is, ha azt pötyögi be az adminisztrátor.
+    
+    2.  véletlenszerű jelszó generálása
+
+        A _jelszóval_ kapcsolatos elvárásoknak megfelelően.
+
+        A generált jelszót írja ki a generálás során a felület.
+
+    3.  e-mail cím manuális jóváhagyása
+
+    4.  új felhasználó felvétele
+
+    5.  felhasználó módosítása (naplózás!)
+
+    6.  jogosultságok megtekintése
+
+    7.  jogosultságok hozzáadása
+
+    8.  jogosultságok módosítása
+
+    9.  jogosultságok törlése
+
+    10. keresés név alapján
+
+    11. keresés user név alapján
+
+    12. keresés azonosítószám alapján
 
     13. javító esetén a javítandó feladatok típusának beállítása
 
+    14. felhasználó megszemélyesítése
+
+        Ez a unixos `sudo` program webes megfelelője, azaz az
+        adminisztrátoroknak megengedi azt, hogy bárki bőrébe bújva a felületen
+        navigáljon és feladatokat végrehajtson.
+
+        Az adatváltozásokat ilyenkor is naplózni kell, az eredeti és a
+        megszemélyesített felhasználóval _is_ megcímkézve a módosítást.
+
+        *(Opcionális)* A megszemélyesítési folyamat végeztével ismételt
+        bejelentkezés nélkül jussunk vissza az eredeti felhasználói folyamatba.
+
 2. Hallgatói adatok feltöltése CSV állomány segítségével
 
-3. Mérésvezetőkkel kapcsolatos folyamatok:
+3. Mérésekkel és mérésvezetőkkel kapcsolatos folyamatok
 
-    14. adataik felvitele
+    15. méréshelyek (csoportok) adatainak kezelése (listázás, hozzáadás,
+        módosítás, törlés)
 
-    15. hallgatók és mérésvezetők összerendelése
+        - Törölni csak üres, jövőbeli dátumú méréshelyet lehessen!
 
-    16. hallgatók és mérésvezetők összerendelése félév közben is
+        - Mérés téma (sql, oracle, …) megváltoztatása
 
-    17. mérésvezetők és méréshelyek összerendelése
+        - Lehessen típust állítani, pl. "pótmérés"
 
-    18. mérésvezetők és mérésidőpontok összerendelése
+        - Lehessen szabad szövegesen helyszínt állítani
 
-4. Értékelők, feladattípusok és hallgatók összerendelése
+        - Lehessen szabad szövegesen általános leírást állítani
 
+    16. méréshelyek és hallgatók összerendelése
+
+        Legyen lehetőség akár utólagos átrendezésre is, tehát előfordulhat,
+        hogy utólag kell az admin rendszerben egy hallgató megbetegedését, stb.
+        kezelni.
+
+    17. méréshelyek és mérésvezetők összerendelése
+
+        Támogassa a több--több összerendelést, ui. előfordulhat
+        az, hogy egy mérést több mérésvezető tart (pl. idén a németeseknél),
+        illetve az is, hogy egy mérésvezető több méréshelyért felel egyazon
+        időben.
+
+    18. méréshelyek és mérésidőpontok összerendelése
+
+        Ez jelentheti a mérésidőpontok beállítását is (tehát nem szükséges az
+        időpontokat külön relációban kezelni)
+
+4. Feladattípusokkal kapcsolatos funkciók:
+
+    19. feladattípus és értékelők összerendelése (több--több)
+
+    20. feladattípus és hallgatók összerendelése
+    
+        Minden hallgatónak 1 méréshez 1 feladattípusa van, de előfordulhat,
+        hogy a hallgató az év elején egy A feladattípust csinál és a pótmérés
+        alkalmával egy B feladattípust kap!
+        
 5. Eredményekhez, statisztikákhoz tartozó funkciók:
 
-    19. Részletes eredmények listázása csoportonként
+    22. Részletes eredmények listázása csoportonként
 
-    20. Részletes eredmények listázása hallgatóként
+    23. Részletes eredmények listázása hallgatóként
 
-    21. Összesített eredmények listázása csoportonként
+    24. Összesített eredmények listázása csoportonként
 
-    22. Összesített eredmények listázása hallgatóként
+    25. Összesített eredmények listázása hallgatóként
 
-    23. Eredmények exportálása CSV állományba
+    26. Házi feladatok esetén a feladattípusonként a nem véglegesített
+        jegyzőkönyvek számának listázása javítók szerint
 
-    24. Házi feladatok esetén a feladattípusonként a nem véglegesített jegyzőkönyvek számának listázása javítók szerint
+    27. Lezáratlan mérésjegyek számának (van jegyzőkönyvjegy, de nincs
+        laborjegy) listázása mérésvezetők szerint
 
-    25. Lezáratlan mérésjegyek számának (van jegyzőkönyvjegy, de nincs laborjegy) listázása mérésvezetők szerint
+    28. Javítók terheltségének listázása
 
-    26. Javítók terheltségének listázása
+    29. Eredmények exportálása CSV állományba
 
-6. Határidők, szünnapok kezelése:
+        *(Opcionális)* Neptun export
 
-    27. Hallgatói jegyzőkönyvek leadásának határidejének kitolása mérésenként, illetve globálisan
+6. Határidők:
 
-    28. Jegyzőkönyv értékelésének határidejének változtatása mérésenként, illetve globálisan
+    A szünnapok kezelését nem várjuk el a projekttől!
 
-    29. Egyedi hallgató esetén a határidő kitolása
+    30. Hallgatói jegyzőkönyvek leadásának határidejének módosítása
 
-7. Méréshelyek és időpontok kezelése:
+        - 1 konkrét hallgató, 1 konkrét határidejét is lehessen állítani,
 
-    30. Új mérés létrehozása
+        - 1 egész méréshely (és idő) összes hallgatójának határidejét lehessen
+          módosítani,
 
-    31. Pót mérés létrehozása
+        - lehessen globálisan állítani a jövőbeni határidőket
 
-    32. Jelenlegi méréshely megváltoztatása
+    31. Jegyzőkönyv értékelésének határidejének változtatása mérésenként,
+        illetve globálisan
 
-    33. Jelenlegi mérésidőpont megváltoztatása
+7. Jegyzőkönyvek kezelése:
 
-    34. Mérés típusának (sql, oracle, …) megváltoztatása
+    32. Jegyzőkönyv archiválása (plágiumkereséshez)
 
-    35. Mérésvezető megváltoztatása
+        GIT esetén is szükségünk lesz egy megoldásra, ami a plágiumkereső
+        szolgáltatás által feldolgozható adatot képes exportálni az admin
+        rendszerben tárolt adatokból.
 
-8. Jegyzőkönyvek kezelése:
+8. Hírek, hirdetmények kezelése:
 
-    36. Jegyzőkönyv archiválása (plágiumkeresés)
+    33. Hírek listázása
 
-9. Hírek, hirdetmények kezelése:
+    34. Hírek létrehozása
 
-    37. Hírek feltölése
+    35. Hírek szerkesztése
 
-    38. Hírek szerkesztése
+        Be lehessen állítani, hogy egy adott hír melyik szerepkörnél
+        látszódjon.
 
-    39. Hírek törlése
+    36. Hírek törlése
 
-    40. Hírek kezeljék a MD formátumot (Opcionális)
+    37. *(Opcionális)* Hírek kezeljék a MD formátumot
 
-10. Véglegesítés visszavonása
+9. Véglegesítés visszavonása
 
-    41. Beugró esetén
+    38. Beugró esetén (naplózás!)
 
-    42. Jegyzőkönyv esetén
+    39. Jegyzőkönyv esetén (naplózás!)
 
-    43. Végleges jegy esetén
+    40. Végleges jegy esetén (naplózás!)
 
-11. SQL szkriptek futtatása (Opcionális, ha mindent lehet frontendről, akkor ne)
+11. SQL szkriptek futtatása (*Opcionális*, ha mindent lehet frontendről, akkor ne)
 
-12. (Beugrókkal kapcsolatos funkciók:
+12. Beugrókkal kapcsolatos funkciók:
 
-    44. Új kérdés hozzáadása
+    41. Új kérdés hozzáadása
 
-    45. Kérdés módosítása
+    42. Kérdés módosítása
 
-    46. 4-7 darab kérdés kiválasztása és nyomtatható fájl létrehozása)
+    43. 4-7 darab kérdés kiválasztása és nyomtatható fájl létrehozása
 
-![image alt text](image_2.png)
+#### Képernyőképek
 
-Statisztikák
+![Statisztikák](image_2.png)
 
-![image alt text](image_3.png)
+![Felhasználók keresése, áttekintése](image_3.png)
 
-Felhasználók keresése, áttekintése
+![Hír létrehozása](image_4.png)
 
-![image alt text](image_4.png)
+![Hírek listázása (szerkesztése, törlése)](image_5.png)
 
-Hír létrehozása
+![Mérés létrehozása](image_6.png)
 
-![image alt text](image_5.png)
+![Mérések listázása](image_7.png)
 
-Hírek listázása (szerkesztése, törlése)
+![Beugró létrehozása adott laborhoz](image_8.png)
 
-![image alt text](image_6.png)
+![Beugrók listája](image_9.png)
 
-Mérés létrehozása
 
-![image alt text](image_7.png)
-
-Mérések listázása
-
-![image alt text](image_8.png)
-
-Beugró létrehozása adott laborhoz
-
-![image alt text](image_9.png)
-
-Beugrók listája
-
-4. Hallgató szerepkör funkcióinak felsorolása
+### Hallgató szerepkör funkciói
 
 1. Saját eredmények megtekintése
 
+   - *(Opcionális)* Megosztás :) -- ehhez egy stabil, szerver oldali URL,
+     szerveren renderelt tartalom és pár <meta> címke kell.
+
 2. Mérésekhez tartozó funkciók:
 
-    1. Mérés helyszínének megjelenítése
+    1. Mérések adatainak megjelenítése
+    
+        - helyszín
 
-    2. Mérés időpontjának megjelenítése
+        - időpont
 
-    3. Mérésvezető személyének megjelenítése
+        - laborvezetői megjegyzés -- ha van általános méréshelyet és -időpontot
+          érintő megjegyzés, akkor azt is jelenítsük meg
 
-    4. Mérésvezető elérhetőségei
+        - mérésvezető személye
+        
+        - mérésvezető elérhetőségei (?)
 
-    5. Jegyzőkönyv leadásának határidejének megtekintése
+    2. Jegyzőkönyv leadási határidejének megtekintése
 
-    6. (Leadott jegyzőkönyvek megtekintése, ha minden gitben lesz, akkor annyira nem fontos)
+    3. Végleges értékelésének megjelenítése
 
-    7. Végleges értékelésének megjelenítése
+        - Beugró jegy
 
-        1. Beugró jegy
+        - Jegyzőkönyv jegy
 
-        2. Jegyzőkönyv jegy
+        - Jegyzőkönyv riport
 
-        3. Jegyzőkönyv report
+        - Javító neve
 
-        4. Javító neve
+        - Labor jegy
 
-        5. Labor jegy
+        - Labor riport
 
-        6. Labor report
+    4. Megjegyzések megjelenítése
 
-    8. Megjegyzések megjelenítése
+    5. Git remote URL elérése
 
-    9. (Saját jegyzőkönyv megjelenítése)
+    6. Minden címke (tag) listázása az adott labor repository-jából
 
-    10. Végleges eredmények megjelenítése
+    7. Végleges címke (tag) beállítása végleges verziónak
 
-    11. Git remote URL elérése
-
-    12. Minden egyes tag kilistázása az adott labor repository-jából
-
-    13. Tag beállítása végleges verziónak
-
-        7. (Amennyiben lejár a határidő, a backend minden branch utolsó commitját tageli. Amennyiben nem jelölt meg a hallgató egyetlen egy taget se végleges verziónak, akkor csak a master branch commitját veszi figyelembe a backend, és a javító az alapján fog pontozni)
+        - Amennyiben lejár a határidő, a backend minden branch utolsó commitját
+          tageli. Amennyiben nem jelölt meg a hallgató egyetlen egy taget se
+          végleges verziónak, akkor csak a master branch commitját veszi
+          figyelembe a backend, és a javító az alapján fog pontozni.
 
 3. Kezdeti jelszavak megtekintése (rapid, Oracle DB, etc.)
 
-![image alt text](image_10.png)
+    Ezeket a jelszavakat lehet cleartext tárolni.
 
-Hallgató szerepkör funkciói
+#### Képernyőképek
 
-![image alt text](image_11.png)![image alt text](image_12.png)
+![Hallgató szerepkör funkciói](image_10.png)
 
-Általános információk / Megtartott, de még nem értékelt labor
+![Általános információk](image_11.png) / ![Megtartott, de még nem értékelt labor](image_12.png)
 
-![image alt text](image_13.png)
+![Értékelt labor](image_13.png)
 
-Értékelt labor
 
-5. Javító szerepkör funkcióinak felsorolása
+### Javító szerepkör funkciói
+
+1. Mérések listázása téma (Oracle, SQL, …) szerint
+
+2. Mérésekhez tartozó funkciók
+
+    A listázással kapcsolatos megoldások szűrőfeltételekkel is megoldhatók, nem
+    kell minden funkcióra külön oldalt, listát, stb. tervezni, megvalósítani!
+
+    1. Jegyzőkönyvekkel kapcsolatos statisztikák, általános számok
+       megjelenítése
+       
+        - jelöljük, hogy hány jegyzőkönyv vár javításra egy adott témában,
+
+        - derüljön ki a felületen, hogy az adott javítási feladatra hány javító
+          jut
+
+    2. Javításra váró / javítás alatt lévő / kijavított / véglegesített
+       jegyzőkönyvek megjelenítése
+
+        - egyértelműen kerüljön jelölésre, ha egy jegyzőkönyv leadási
+          határideje még nem járt le!
+
+        - látszódjon, hogy határidő előtt vagy után került leadásra a listázott
+          jegyzőkönyv
+
+        - látszódjon, hogy egy jegyzőkönyvre milyen jegyet adott a javító
+
+        - lefoglalt jegyzőkönyv esetén lehessen a listázó oldalról is
+          véglegesítést kezdeményezni
+
+    3. Jegyzőkönyv lefoglalása -- ne javítsa egyszerre két javító ugyanazt
+
+        Addig nem szabad engedni javítani a javítót, amíg a jegyzőkönyv leadási
+        határideje nem járt le!
+    
+    4. Jegyzőkönyv feloldása
+
+        - itt kell megjeleníteni az egyes részletes adatokat: GIT repository,
+          leadási határidő, megvalósult leadási idő
+
+3. Javítandó/véglegesített jegyzőkönyvhöz tartozó funkciók
+
+    5. Jegyzőkönyvvel kapcsolatos adatok lekérdezése
+
+        - hallgató neve
+
+        - hallgató neptun kódja
+    
+        - hallgató elérhetősége
+
+        - feladattípus
+
+        - téma
+
+        - határidő
+
+        - git repository, véglegesnek jelölt címkékkel
+
+        - leadási határidő
+
+        - leadás határideje (külön jelezve, ha határidőn túli a leadás)
+
+        - érdemjegyek
+
+        - Imsc pont
+
+        - megjegyzések
+
+    6. Érdemjegy módosítása
+
+        Véglegesítés előtt!
+
+    7. Megjegyzés módosítása
+
+        Véglegesítés előtt!
+
+    8. Megjegyzés eltávolítása
+
+        Véglegesítés előtt!
+
+    9. Véglegesítés
+
+4. Más javítók által javítandó/véglegesített jegyzőkönyvhöz tartozó funckiók
+
+    10. Jegyzőkönyvvel kapcsolatos adatok lekérdezése
+
+        Mint fent
+
+
+#### Képernyőképek
+
+![Javító szerepkör](image_14.png)
+
+![Javító szerepkör funkciói](image_15.png)
+
+
+### Mérésvezető (demonstrátor) szerepkör funkciói
 
 1. Laborok listázása
 
-2. Laborokhoz tartozó funkciók
-
-    1. Javításra váró jegyzőkönyvek lekérdezése
-
-    2. Jegyzőkönyv lefoglalása → ne javítsa egyszerre két javító ugyanazt
-
-    3. Felhasználó által javítandó jegyzőkönyvek lekérése
-
-    4. Felhasználó által véglegesített jegyzőkönyvek lekérése
-
-    5. Más felhasználó által javított jegyzőkönyvek lekérése
-
-3. Felhasználó által javítandó/véglegesített jegyzőkönyvhöz tartozó funkciók
-
-    6. Hallgató nevének lekérdezése
-
-    7. Hallgató neptunjának lekérdezése
-
-    8. Feladattípus lekérdezése
-
-    9. Határidő lekérdezése
-
-    10. Érdemjegy lekérdezése
-
-    11. Érdemjegy módosítása
-
-    12. Megjegyzés lekérdezése
-
-    13. Megjegyzés módosítása
-
-    14. Megjegyzés eltávolítása
-
-    15. Git remote URL elérése (tagname-mel együtt)
-
-    16. Megjegyzések és jegyek véglegesítése
-
-    17. Imsc pont lekerdezese, modositasa, torlese
-
-4. Más felhasználók által javítandó/véglegesített jegyzőkönyvhöz tartozó funckiók
-
-    18. Hallgató nevének lekérdezése
-
-    19. Hallgató neptunjának lekérdezése
-
-    20. Feladattípus lekérdezése
-
-    21. Határidő lekérdezése
-
-    22. Érdemjegy lekérdezése
-
-    23. Javító nevének lekérdezése
-
-    24. Git remote URL elérése (tagname-mel együtt)
-
-![image alt text](image_14.png)
-
-Javító szerepkör funkciói
-
-![image alt text](image_15.png)
-
-6. Demonstrátor szerepkör funkcióinak felsorolása
-
-1. Laborok listázása
+    1. Méréshely és idő alapján listázhatóak legyenek a mérések (laborok)
 
 2. Laborokhoz tartozó funkciók
 
-    1. Hallgatók kilistázása → kilistázás után lehessen gyorsan a beugrójegyet módosítani
+    2. Hallgatók listázása
 
-3. Hallgatókhoz tartozó funkciók
+        - megjelenítendő az összes elérhető jegy és pontszám
 
-    2. Hallgató nevének lekérdezése
+        - megjelenítendő a leadási határidő, illetve feltöltött jegyzőkönyv
+          esetén annak ideje és késés esetén a késés mértéke
+    
+    3. A listában lehessen beugrójegyet módosítani
 
-    3. Hallgató neptunjának lekérdezése
+    4. A listában lehessen laborjegyet módosítani
 
-    4. Feladattípus lekérdezése
+    5. A listában lehessen egyszerre vagy egyesével véglegesíteni az egyes
+       pontszámokat, jegyeket
+       
+    6. Adott méréshez helyettesítő mérésvezető rendelése önmaga helyett
+    
+        *(Opcionális)* E-mail értesítés az érintettnek
 
-    5. Mérés idejének lekérdezése
+3. Méréshez (hallgatóhoz) tartozó funkciók
 
-    6. Mérés helyének lekérdezése
+    7. Mérés részletes adatainak megjeleneítése
 
-    7. Hallgató mérésen végzett beugrójának jegye lekérdezése
+        - hallgató neve
 
-    8. Hallgató jegyzőkönyv jegyének lekérdezése
+        - hallgató neptun kódja
 
-    9. Jegyzőkönyv megjegyzésének lekérdezése
+        - feladattípus
 
-    10. Véglegesítés jelzése a megjegyzésekről
+        - téma
 
-    11. Labor érdemjegy lekérdezése
+        - mérés helye és ideje
 
-    12. Labor érdemjegy módosítása
+        - jegyek és pontszámok
 
-    13. Labor megjegyzésének lekérdezése
+        - megjegyzések
 
-    14. Labor megjegyzésének módosítása
+        - git URL lekérdezése, címkékkel együtt
 
-    15. Labor megjegyzésének törlése
+    8. Pontszámok, jegyek és megjegyzések véglegesítése külön-külön és együtt
 
-    16. IMSc pontok lekérdezése
+    9. Labor érdemjegy módosítása
 
-    17. Megjegyzések és jegyek véglegesítése
+    10. Labor megjegyzésének módosítása
 
-    18. Git remote URL elérése (tagname-mel együtt)
+    11. Labor megjegyzésének törlése
 
-4. (Beugrók listázása
+    12. IMSc pontok módosítása
 
-5. Beugrók törlése
+    13. Hallgató áthelyezése másik laborba
 
-6. Beugrókhoz tartozó funkciók
+        - akár utólag is!
 
-    19. Beugró típus lekérdezése
+4. Beugrókkal kapcsolatos funkciók
 
-    20. Beugró szövegének lekérdezése
+    14. Beugrók listázása, lekérdezése
 
-    21. (Beugró nyomtatása)
+    15. Új beugró hozzáadása
 
-![image alt text](image_16.png)
+    16. Beugrók szerkesztése
 
-Demonstrátor szerepkör funkciói
+    17. Beugrók törlése
 
-![image alt text](image_17.png)
+    18. Beugrók kiválasztása és nyomtatása
 
-Hallgatók listája
+        - *(Opcionális)* ideális esetben egy PDF dokumentum lenne a jó megoldás
 
-7. Beállítások ![image alt text](image_18.png)
 
-1. Felhasználó megtekintheti saját adatait
+### Oktató szerepkör (Admin, Mérésvezető, Javító uniója ennek részhalmaza) közös funkciói
 
-2. Felhasználó módosíthatja e-mail címét
+1. A https://db.bme.hu/szglab5-generator/ címen elérhető feladatlap-generátor teljes funkcionalitásának elérése
 
-3. Felhasználó módosíthatja jelszavát az aktuális, az új illetve az új jelszó ellenőrzésére szolgáló ismétlés megadásával
+#### Képernyőképek
 
-4. Felhasználó felirtakozhat levelezőlistára
+![Demonstrátor szerepkör funkciói](image_16.png)
 
-5. Felhasználó feliratkozhat e-mail alapú értesítésekre (új jegy, hír) 
-
-6. Felhasználó megadhatja a saját SSH publikus kulcsát
-
-7. Felhasználó nem módosíthatja saját nevét és neptun kódját
-
-8. Amennyiben a felhasználó nem rendelkezik megadott e-mail címmel, bejelentkezés után erre az oldalra irányítandó
-
-9. (Jelszógenerálás esetén 0 és O illetve 1, l(L), I(i) betűk kerülendőek)
-
-10. Amennyiben változott a felhasználó e-mail címe, ellenőrző levél fog kiküldésre kerülni. 
-
-11. Az ellenőrző e-mail időkorlátos, amennyiben a felhasználó nem erősíti meg, az előző e-mail cím automatikusan visszaírásra kerül
-
-12. Ellenőrző e-mail kiküldését lehet újrakérni, amennyiben az nem érkezett meg a felhasználónak.
-
-13. Hibás vagy felhasznált ellenőrző token esetén dobjon a rendszer hibaüzenetet.
-
-![image alt text](image_19.png)
-
-Beállítások
-
-8. Kijelentkezés![image alt text](image_20.png)
-
-1. A kijelentkezéssel a felhasználónak megszűnik a session-je.
-
-2. A kijelentkezés után a felhasználó a bejelentkezés oldalra lesz átirányítva.
-
+![Hallgatók listája](image_17.png)
