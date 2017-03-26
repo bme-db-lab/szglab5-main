@@ -1,3 +1,7 @@
+## ER dokumentáció
+
+### Általános információk
+
 Language: egy természetes nyelv, pl. feladatok illetve hallgató kurzusának a nyelve.
 
 Exercise-világrész:
@@ -8,7 +12,6 @@ Exercise-világrész:
 
 Egy Event egyed az egy hallgató egy mérésen való részvétele,
 azaz pl. Gedeon bácsi a SOA mérésen HAJO-hu feladatot old meg.
-
 
 
 User<-isa-Student, User<-isa-Staff: ez valójában csak az ER-en a fogalmi rendszer érzékeltetésére való, miszerint az egyes kapcsolattípusokban Student vagy Staff vesz részt. Implementációban ez várhatóan egyetlen Users tábla lesz.
@@ -29,3 +32,160 @@ A szerepeket/jogosultságokat egy általános Grant táblában implementáljuk:
    pl. (1, tárgyfelelős, Semester), (2, demonstrátor, StudentGroup), (3,
  - Grant(grant_id, grant_type_id, user_id, object_id): megmutatja, hogy adott jogosultságot melyik objektumon gyakorolhatja az adott user. Pl. Szilárd demonstrátor (grant_type_id=2) a 7-es csoportban
  - a sárga kapcsolattípusok kerülnek itt implementálásra
+
+### Attribútum lista és leírás
+ 	
+**1. Appointments:** StudentGroup-ot kapcsol egy alkalomhoz (idő és hely).
+- Tulajdonságok:
+   * id - number
+   * date - datetime
+   * location - text
+ - Idegen kulcsok:
+   * eventtype - EventTypes
+   * studentgroup - StudentGroups
+ 
+**2. Courses:** A felület álltal kezelt kurzusok.
+- Tulajdonságok:
+  * id - number
+  * name - text
+  * codename - text
+
+**3. Deliverables:** Hallgatók álltal beadandó anyagok.
+- Tulajdonságok:
+  * id - number
+  * deadline - datetime
+  * submitteddate - datetime
+  * grade - number - 1-5
+- Idegen kulcsok:
+  * deliverabletype - DeliverableTemplates
+  * evaluator - Staffs
+  * related - DeliverableTemplates
+  
+**4. Deliverables/Repositories:** Speciális beadandó anyag, melyet verziókezelő rendszeren át töltenek fel. 
+(Jelenleg egyedüli feltöntendő fajta)
+- Tulajdonságok:
+  * url - text - git url
+  * commit - text - chosen final commit
+  
+**5. DeliverableTemplates:** Leírja a beadandó anyag típusát.
+- Tulajdonságok
+  * id - number
+  * deadline - datetime operator - +7 nap az esemény idejétől [ugye?]
+  * description - text - például: report
+- Idegen kulcsok:
+  * eventtype - EventTemplates
+  
+**6. Events:** Egy hallgató mérésen való részvételét tárolja.
+- Tulajdonságok
+  * id - number
+  * date - datetime
+  * location - text
+  * number - number - 1-5
+  * title - text - DBMS, SQL, JDBC, X*, SOA
+  * attempt - number - starting number: 1
+  * shortdescription - text - generated
+- Idegen kulcsok
+  * related - Events
+  * eventtype - EventTypes
+  * exercisheet - ExerciseSheets
+  * demonstrator - Staffs
+  * studentreg - StudentRegistrations
+  
+**7. EventTemplates:** A lehetséges látogatható óra típusát adja meg. [Mivel nem lesz általános, nem csak mérés lehet?]
+- Tulajdonságok:
+  * id - number
+  * title - text
+  * number - number
+  
+**8. ExerciseCategories:** A feladat kategóriája (JDBC, Oracle, SQL stb).
+- Tulajdonságok:
+  * id - number
+  * type - text - SQL, DBMS, SOA, JDBC, XML
+- Idegen kulcsok
+  * course - Courses
+  
+**9. ExerciseTypes:** A feladat típusa (AUTO, HAJO) és nyelve (természetes nyelv).
+- Tulajdonságok:
+  * id - number
+  * name - text - for example: Car Rental
+  * shortname - text - for example: AUTO
+  * exerciseid - number - for example: 22
+  * codename - text - generated, for example: 22-AUTO
+  * language - text
+- Idegen kulcsok
+  * exercisecategory - ExerciseCategories
+  
+**10. ExerciseSheets:** Egy feladatpapír. Összerendel típust és kategóriát. Például: (SQL, AUTO)
+- Idegen kulcsok
+  * excategory - ExerciseCategories
+  * extype - ExerciseTypes
+  
+**11. StudentRegistrations:** A tárgyat neptun szerint felvevő hallgatókról tárol neptun információt.
+- Tulajdonságok:
+  * id - number
+  * neptunsubjectcode - text
+  * neptuncoursecode - text
+- Idegen kulcsok
+  * student - Students
+  * studentgroup - StudentGroups
+  * semester - Semesters
+  * language - Languages 
+  
+**12. Semesters:** Egy egyetemi menetrend szerinti félév beli példánya a kurzusnak.
+- Tulajdonságok:
+  * id - number
+  * academicyear - number
+  * academicterm - number
+  * description - text - generated
+- Idegen kulcsok
+  * course - Courses
+  
+**13. StudentGroups:** A hallgatók csoportja. Egy demonstrátor és nagyjából 20 hallgató tartozik hozzá.
+- Tulajdonságok:
+  * id - number
+  * name - text
+  * language - text
+- Idegen kulcsok
+  * demonstrator - Staffs
+  * semester - Semesters
+  
+**14. Users:** A felületet használó felhasználók.
+- Tulajdonságok:
+  * id - number
+  * givenname - text
+  * surname - text
+  * title - text
+  * displayname - text - generated
+  * loginname - text, unique
+  * eppn - text - Sibboleth
+  * email - text, unique
+  * sshpubliykey - text
+  * password - text
+  
+**15. Users/Students:** Hallgató felhasználó. Órákra jár és beadandókat tölt fel.
+- Tulajdonságok:
+  * neptun - text
+  * university - text
+  
+**16. Users/Staff:** Lehet demonstrátor, javító vagy adminisztrátor.
+
+**17. Languages:** A kurzus nyelve. Vonatkozik a beadandó dokumentációkra és a beugró kérdésekre is. [Van értelme nem csak stringként tárolni ahol kell?]
+- Tulajdonságok:
+  * language - text
+
+**18. Questions:** Egy feladat kategóriában felbukkanó kérdések.
+- Tulajdonságok:
+  * kerdes - text
+- Idegen kulcsok
+  * language - Languages
+  * excategory - ExerciseCategories
+  
+  
+**19. News:** A felületen megjelenő hírek.
+- Tulajdonságok:
+  * newstext - text
+  * date - datetime
+- Idegen kulcsok
+  * language - Languages
+  
+
