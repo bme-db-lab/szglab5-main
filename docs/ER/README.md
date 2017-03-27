@@ -56,6 +56,7 @@ A szerepeket/jogosultságokat egy általános Grant táblában implementáljuk:
   * deadline - datetime
   * submitteddate - datetime
   * grade - number - 1-5
+  * comment - text
 - Idegen kulcsok:
   * deliverabletype - DeliverableTemplates
   * evaluator - Staffs
@@ -70,7 +71,7 @@ A szerepeket/jogosultságokat egy általános Grant táblában implementáljuk:
 **5. DeliverableTemplates:** Leírja a beadandó anyag típusát.
 - Tulajdonságok
   * id - number
-  * deadline - datetime operator - +7 nap az esemény idejétől [ugye?]
+  * deadline - datetime operator - +7 nap az esemény idejétől
   * description - text - például: report
 - Idegen kulcsok:
   * eventtype - EventTemplates
@@ -80,10 +81,7 @@ A szerepeket/jogosultságokat egy általános Grant táblában implementáljuk:
   * id - number
   * date - datetime
   * location - text
-  * number - number - 1-5
-  * title - text - DBMS, SQL, JDBC, X*, SOA
   * attempt - number - starting number: 1
-  * shortdescription - text - generated
 - Idegen kulcsok
   * related - Events
   * eventtype - EventTypes
@@ -91,7 +89,7 @@ A szerepeket/jogosultságokat egy általános Grant táblában implementáljuk:
   * demonstrator - Staffs
   * studentreg - StudentRegistrations
   
-**7. EventTemplates:** A lehetséges látogatható óra típusát adja meg. [Mivel nem lesz általános, nem csak mérés lehet?]
+**7. EventTemplates:** A lehetséges látogatható óra típusát adja meg.
 - Tulajdonságok:
   * id - number
   * title - text
@@ -159,7 +157,7 @@ A szerepeket/jogosultságokat egy általános Grant táblában implementáljuk:
   * loginname - text, unique
   * eppn - text - Sibboleth
   * email - text, unique
-  * sshpubliykey - text
+  * sshpublickey - text
   * password - text
   
 **15. Users/Students:** Hallgató felhasználó. Órákra jár és beadandókat tölt fel.
@@ -167,7 +165,7 @@ A szerepeket/jogosultságokat egy általános Grant táblában implementáljuk:
   * neptun - text
   * university - text
   
-**16. Users/Staff:** Lehet demonstrátor, javító vagy adminisztrátor.
+**16. Users/Staff:** Oktatói szerepkörhöz szükséges hozzáférésekkel bíró felhasználó. (pl Demonstrátor, Javító, Admin)
 
 **17. Languages:** A kurzus nyelve. Vonatkozik a beadandó dokumentációkra és a beugró kérdésekre is. [Van értelme nem csak stringként tárolni ahol kell?]
 - Tulajdonságok:
@@ -181,10 +179,12 @@ A szerepeket/jogosultságokat egy általános Grant táblában implementáljuk:
   * excategory - ExerciseCategories
   
   
-**19. News:** A felületen megjelenő hírek.
+**19. News:** A felületen megjelenő hírek. [todo]
 - Tulajdonságok:
   * newstext - text
-  * date - datetime
+  * published - datetime
+  * from - datetime
+  * until - datetime
 - Idegen kulcsok
   * language - Languages
   
