@@ -142,7 +142,6 @@ A szerepeket/jogosultságokat egy általános Grant táblában implementáljuk:
 - Tulajdonságok:
   * id - number
   * name - text
-  * language - text
 - Idegen kulcsok
   * demonstrator - Staffs
   * semester - Semesters
