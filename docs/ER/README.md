@@ -179,13 +179,15 @@ A szerepeket/jogosultságokat egy általános Grant táblában implementáljuk:
   * excategory - ExerciseCategories
   
   
-**19. News:** A felületen megjelenő hírek. [todo]
+**19. News:** A felületen megjelenő hírek. A flags attributúm tárolja, mely felületeken jelenik meg (főoldal, login oldal stb)
 - Tulajdonságok:
   * newstext - text
   * published - datetime
   * from - datetime
   * until - datetime
+  * flags - number
 - Idegen kulcsok
   * language - Languages
+  * author - User/Staff
   
 
