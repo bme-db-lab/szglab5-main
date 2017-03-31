@@ -41,7 +41,7 @@ A szerepeket/jogosultságokat egy általános Grant táblában implementáljuk:
    * date - datetime
    * location - text
  - Idegen kulcsok:
-   * eventtype - EventTypes
+   * eventtype - EventTemplates
    * studentgroup - StudentGroups
  
 **2. Courses:** A felület álltal kezelt kurzusok.
@@ -84,7 +84,7 @@ A szerepeket/jogosultságokat egy általános Grant táblában implementáljuk:
   * attempt - number - starting number: 1
 - Idegen kulcsok
   * related - Events
-  * eventtype - EventTypes
+  * eventtype - EventTemplates
   * exercisheet - ExerciseSheets
   * demonstrator - Staffs
   * studentreg - StudentRegistrations
