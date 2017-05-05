@@ -98,6 +98,24 @@ A `bcrypt` npm csomagot forráskódból kell fordítani. Ehhez szükséges a `ma
 ```
 pushd /srv/http/szglab5-backend
 git checkout dev
+cat << EOF > /srv/http/szglab5-backend/config/config.prod.js
+{
+  "db": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "laboradmin",
+    "username": "postgres",
+    "password": "devpass"
+  },
+  "api": {
+    "port": 7000
+  },
+  "cors": {
+    "whitelist": ["http://fecske-dev.db.bme.hu:4200"]
+  }
+}
+EOF
+
 apt install make g++ # <- a bcrypt npm csomag fordítási függőségei
 npm install
 popd
@@ -107,9 +125,19 @@ popd
 Itt is a `dev` branch a legaktuálisabb változat a dokumentum írásakor. Az `npm install` futtatásához legalább 1 GB RAM szükséges, ugyanis telepítés előtt a RAM-ba cache-eli a csomagokat az npm.
 
 A `node-sass` újraépítése egy bug miatt szükséges workaround, anélkül nem indul az `ember-cli`.
+
+A production.json fájlban a backendUrl értelemszerűen a szerver elérhetőségére szabandó.
 ```
 pushd /srv/http/szglab5-frontend
 git checkout dev
+cat << EOF > /srv/http/szglab5-frontend/config/production.json
+module.exports = function(ENV) {
+  // Set variables like:
+  // ENV.backendUrl = 'http://localhost:7000';
+  ENV.backendUrl = "http://fecske-dev.db.bme.hu:7000";
+  return ENV;
+};
+EOF
 chown frontend:frontend -R /srv/http/szglab5-frontend
 su -c 'npm install' -s /bin/bash - frontend # <- Legalább 1 GB RAM szükséges a futtatáshoz
 su -c 'bower install' -s /bin/bash - frontend
@@ -172,7 +200,7 @@ After=network.target
 User=frontend
 Group=frontend
 WorkingDirectory=/srv/http/szglab5-frontend
-ExecStart=/usr/bin/ember serve
+ExecStart=/usr/bin/ember serve --environment production
 KillMode=process
 
 [Install]
@@ -182,3 +210,50 @@ EOF
 systemctl daemon-reload
 systemctl start szglab5-frontend
 ```
+
+## Jenkins telepítése a teszt szerverre (CSAK TESZT SZERVER!)
+Az alábbiak futtatása után a 8080-as porton fog hallgatni a jenkins.
+```
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list
+apt-get update
+apt-get install jenkins
+```
+
+## Nginx reverse proxy konfigurálása
+Ahhoz, hogy mind a frontend, mind a backend elérhető legyen egységes felületen, egy nginx reverse proxyn keresztül szolgáljuk ki a kéréseket. A backend a /api almappán keresztül lesz elérhető. A production.json konfigfájlba kerülő url-t értelemszerűen a szerver elérhetőségére kell szabni.
+```
+apt-get install nginx
+cat << EOF > /etc/nginx/sites-available/default
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	server_name _;
+
+	location / {
+		proxy_pass http://127.0.0.1:4200;
+	}
+
+	location ~ /api(/?)(.*)$ {
+		proxy_redirect off;
+		proxy_set_header Host $host;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_pass      http://127.0.0.1:7000/$2;
+	}
+}
+EOF
+cat << EOF > /srv/http/szglab5-frontend/config/production.json
+module.exports = function(ENV) {
+  // Set variables like:
+  // ENV.backendUrl = 'http://localhost:7000';
+  ENV.backendUrl = "http://fecske-dev.db.bme.hu/api";
+  return ENV;
+};
+EOF
+sed -i 's/:4200//g' /srv/http/szglab5-backend/config/config.prod.js
+service nginx reload
+systemctl restart szglab5-frontend
+su - backend -s /bin/bash -c 'pm2 restart szglab5-backend'
+```
+
