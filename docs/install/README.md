@@ -32,29 +32,39 @@ apt-get install phantomjs
 ## Tűzfalszabályok beállítása
 A beengedett tcp portok:
 
- - 22: ssh
+ + 22: ssh
+ + 80: http
+ + 443: https
  - 7700: apidoc
  - 7000: backend szerver
  - 4200: frontend szerver
 
 ```
+iptables -P INPUT ACCEPT
+iptables -F INPUT
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
 iptables -A INPUT -p tcp --dport 22 -j ACCEPT # ssh
-iptables -A INPUT -p tcp --dport 7700 -j ACCEPT # apidoc
-iptables -A INPUT -p tcp --dport 7000 -j ACCEPT # backend
-iptables -A INPUT -p tcp --dport 4200 -j ACCEPT # frontend
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT # http
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT # https
+#iptables -A INPUT -p tcp --dport 7700 -j ACCEPT # apidoc
+#iptables -A INPUT -p tcp --dport 7000 -j ACCEPT # backend
+#iptables -A INPUT -p tcp --dport 4200 -j ACCEPT # frontend
 iptables -P INPUT DROP
 iptables-save > /etc/iptables/rules.v4
 
+ip6tables -P INPUT ACCEPT
+ip6tables -F INPUT
 ip6tables -A INPUT -i lo -j ACCEPT
 ip6tables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 ip6tables -A INPUT -p icmpv6 -j ACCEPT
 ip6tables -A INPUT -p tcp --dport 22 -j ACCEPT # ssh
-ip6tables -A INPUT -p tcp --dport 7700 -j ACCEPT # apidoc
-ip6tables -A INPUT -p tcp --dport 7000 -j ACCEPT # backend
-ip6tables -A INPUT -p tcp --dport 4200 -j ACCEPT # frontend
+ip6tables -A INPUT -p tcp --dport 80 -j ACCEPT # http
+ip6tables -A INPUT -p tcp --dport 443 -j ACCEPT # https
+#ip6tables -A INPUT -p tcp --dport 7700 -j ACCEPT # apidoc
+#ip6tables -A INPUT -p tcp --dport 7000 -j ACCEPT # backend
+#ip6tables -A INPUT -p tcp --dport 4200 -j ACCEPT # frontend
 ip6tables -P INPUT DROP
 ip6tables-save > /etc/iptables/rules.v6
 ```
@@ -95,10 +105,12 @@ git clone https://github.com/bme-db-lab/szglab5-backend.git
 ### Backend konfigurálása
 A `dev` branchen van a kód aktuális változata. Ha ez változik, akkor más branchet kell majd checkoutolni.
 A `bcrypt` npm csomagot forráskódból kell fordítani. Ehhez szükséges a `make` és a `g++`.
+
+A jelszavak megváltoztatandók.
 ```
 pushd /srv/http/szglab5-backend
 git checkout dev
-cat << EOF > /srv/http/szglab5-backend/config/config.prod.js
+cat << EOF > /srv/http/szglab5-backend/config/config.prod.json
 {
   "db": {
     "host": "localhost",
@@ -126,11 +138,11 @@ Itt is a `dev` branch a legaktuálisabb változat a dokumentum írásakor. Az `n
 
 A `node-sass` újraépítése egy bug miatt szükséges workaround, anélkül nem indul az `ember-cli`.
 
-A production.json fájlban a backendUrl értelemszerűen a szerver elérhetőségére szabandó.
+A production.js fájlban a backendUrl értelemszerűen a szerver elérhetőségére szabandó.
 ```
 pushd /srv/http/szglab5-frontend
 git checkout dev
-cat << EOF > /srv/http/szglab5-frontend/config/production.json
+cat << EOF > /srv/http/szglab5-frontend/config/production.js
 module.exports = function(ENV) {
   // Set variables like:
   // ENV.backendUrl = 'http://localhost:7000';
@@ -221,7 +233,9 @@ apt-get install jenkins
 ```
 
 ## Nginx reverse proxy konfigurálása
-Ahhoz, hogy mind a frontend, mind a backend elérhető legyen egységes felületen, egy nginx reverse proxyn keresztül szolgáljuk ki a kéréseket. A backend a /api almappán keresztül lesz elérhető. A production.json konfigfájlba kerülő url-t értelemszerűen a szerver elérhetőségére kell szabni.
+Ahhoz, hogy mind a frontend, mind a backend elérhető legyen egységes felületen, egy nginx reverse proxyn keresztül szolgáljuk ki a kéréseket. A backend a /api almappán keresztül lesz elérhető.
+
+A production.js konfigfájlba kerülő url-t értelemszerűen a szerver elérhetőségére kell szabni.
 ```
 apt-get install nginx
 cat << EOF > /etc/nginx/sites-available/default
@@ -243,7 +257,7 @@ server {
 	}
 }
 EOF
-cat << EOF > /srv/http/szglab5-frontend/config/production.json
+cat << EOF > /srv/http/szglab5-frontend/config/production.js
 module.exports = function(ENV) {
   // Set variables like:
   // ENV.backendUrl = 'http://localhost:7000';
@@ -251,7 +265,7 @@ module.exports = function(ENV) {
   return ENV;
 };
 EOF
-sed -i 's/:4200//g' /srv/http/szglab5-backend/config/config.prod.js
+sed -i 's/:4200//g' /srv/http/szglab5-backend/config/config.prod.json
 service nginx reload
 systemctl restart szglab5-frontend
 su - backend -s /bin/bash -c 'pm2 restart szglab5-backend'
