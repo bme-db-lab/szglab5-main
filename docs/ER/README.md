@@ -20,7 +20,7 @@ StudentRegistration (a Student--Semester több:több kapcsolattípus helyett): e
 
 
 A beugró eredménye is egy deliverable (az általános Deliverable egyede), és pl. a git-es beadandó egy RepositoryDeliverable. Ezért a Deliverables es a DeliverableTemplate az tenyleg kell.
-Pl. a SOA mérés EventTemplate-jához felvesszük, hogy tartozik két DeliverableTemplate: 1. beugró, 2. egy git repo. Ez alapján legeneráljuk az adott EVent példányokhoz a Deliverable példányokat.
+Pl. a SOA mérés EventTemplate-jához felvesszük, hogy tartozik két DeliverableTemplate: 1. beugró, 2. egy git repo. Ez alapján legeneráljuk az adott Event példányokhoz a Deliverable példányokat.
 
 A beugrókérdések az ExerciseCategory-hoz kötődnek, és a beugró ténye és eredménye egy deliverable. Pillanatnyilag nincs olyan use case, hogy elektronikusan írjanak beugrót.
 
