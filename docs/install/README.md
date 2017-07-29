@@ -10,8 +10,8 @@ A következő paranccsal kitöltjük a csomaglistafájlt:
 
 ```
 cat << EOF > /etc/apt/sources.list.d/nodesource.list
-deb https://deb.nodesource.com/node_6.x jessie main
-deb-src https://deb.nodesource.com/node_6.x jessie main
+deb https://deb.nodesource.com/node_8.x jessie main
+#deb-src https://deb.nodesource.com/node_8.x jessie main
 EOF
 ```
 
@@ -120,9 +120,19 @@ cat << EOF > /srv/http/szglab5-backend/config/config.prod.json
     "password": "devpass"
   },
   "api": {
-    "port": 7000
+    "port": 7000,
+    "monitoringPort":  9000
   },
-  "cors": {
+  "logger": {
+    "consoleLevel": "info",
+    "consoleLogEnabled": true,
+    "fileLevel": "info",
+    "fileLogEnabled": true,
+    "filePath": "./",
+    "rotatePattern": ".yyyy-MM-dd.bak",
+    "rotateSize": 1000000
+  },
+"cors": {
     "whitelist": ["http://fecske-dev.db.bme.hu:4200"]
   }
 }
@@ -231,6 +241,7 @@ echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/
 apt-get update
 apt-get install jenkins
 ```
+megj.: A Jenkins VM-en jo, ha van legalabb 2 GB RAM.
 
 ## Nginx reverse proxy konfigurálása
 Ahhoz, hogy mind a frontend, mind a backend elérhető legyen egységes felületen, egy nginx reverse proxyn keresztül szolgáljuk ki a kéréseket. A backend a /api almappán keresztül lesz elérhető.
