@@ -209,29 +209,12 @@ chown backend:backend -R /srv/http/szglab5-backend
 su -s /bin/bash -c 'pm2 start ecosystem.config.js --env prod' - backend
 PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u backend --hp /srv/http/szglab5-backend --env prod
 ```
-### Systemd service a frontendhez
-A pm2-ben nincs ember.js támogatás, így arra egy egyszerű systemd service fájlt készítünk, és a systemd-re bízzuk a frontend szerver processz menedzselését.
-
+### Frontend build
+A frontend a szerver szempontjabol csupa statikus fajl. Ezeket az ember-cli tudja generalni.
 ```
-cat << EOF > /etc/systemd/system/szglab5-frontend.service
-[Unit]
-Description=Szglab5 frontend EmberJS server
-After=network.target
-
-[Service]
-User=frontend
-Group=frontend
-WorkingDirectory=/srv/http/szglab5-frontend
-ExecStart=/usr/bin/ember serve --environment production
-KillMode=process
-
-[Install]
-WantedBy=multi-user.target
-Alias=szglab5-frontend.service
-EOF
-systemctl daemon-reload
-systemctl start szglab5-frontend
+su -s /bin/bash -c 'ember build -prod' - frontend
 ```
+Ezutan a /srv/http/szglab5-frontend/dist mappaban megjelennek a generalt fajlok.
 
 ## Jenkins telepítése a teszt szerverre (CSAK TESZT SZERVER!)
 Az alábbiak futtatása után a 8080-as porton fog hallgatni a jenkins.
@@ -253,12 +236,9 @@ cat << EOF > /etc/nginx/sites-available/default
 server {
 	listen 80 default_server;
 	listen [::]:80 default_server;
+	root /srv/http/szglab5-frontend/dist;
 
 	server_name _;
-
-	location / {
-		proxy_pass http://127.0.0.1:4200;
-	}
 
 	location ~ /api(/?)(.*)$ {
 		proxy_redirect off;
@@ -278,7 +258,6 @@ module.exports = function(ENV) {
 EOF
 sed -i 's/:4200//g' /srv/http/szglab5-backend/config/config.prod.json
 service nginx reload
-systemctl restart szglab5-frontend
 su - backend -s /bin/bash -c 'pm2 restart szglab5-backend'
 ```
 
