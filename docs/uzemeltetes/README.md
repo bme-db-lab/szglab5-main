@@ -44,48 +44,29 @@ pm2 logs
 ```
 
 ## szglab5-frontend
-A frontend Ember.js-ben készült. Az alkalmazásszervert az ember-cli biztosítja. A szolgáltatás futását a systemd menedzseli a `/etc/systemd/system/szglab5-frontend.service` fájlban megadottak szerint. Ahol nincs másképp meghatározva, a parancsokat rootként futtassuk.
+A frontend Ember.js-ben készült. Az Ember.js statikus fajlokat general a `/srv/http/szglab5-frontend/dist` mappaba, amelyeket aztan a webszerver tud kiszolgalni. Ahol nincs másképp meghatározva, a parancsokat a frontend user neveben futtassuk.
 
-Státusz megtekintése
-```
-systemctl status szglab5-frontend.service
-```
 
-Logok megtekintése
+Build:
+
 ```
-journalctl -u szglab5-frontend.service
+ember build -prod
 ```
 
-A szolgáltatás leállítása
-```
-systemctl stop szglab5-frontend.service
-```
-
-A szolgáltatás indítása:
-
-Az ember cli viszonylag lassan indul, de a systemd service az elindítástól már futóként tartja nyilván. Várjunk kb. fél percet, mielőtt elkönyveljük magunkban, hogy valami nem működik. A parancs:
-```
-systemctl start szglab5-frontend.service
-```
-
-A szolgáltatás újraindítása
-```
-systemctl restart szglab5-frontend.service
-```
 
 ### Frissítés
-Elsőként töltsük le a változtatásokat a git repoból. Ezt a frontend user nevében tegyük!
+Elsőként töltsük le a változtatásokat a git repoból.
 ```
 git pull
 ```
 
-Ezután, szintén a frontend user nevében aktualizáljuk a telepített függőségeket
+Ezután aktualizáljuk a telepített függőségeket
 ```
 npm install
 ```
 
-Miután mindez megvan, indítsuk újra a szolgáltatást, immár rootként futtatva a következőt
+Miután mindez megvan, epitsuk újra a szolgáltatást
 ```
-systemctl restart szglab5-frontend
+ember build -prod
 ```
-Kb. fél perc várakozás után már a friss frontend fogad minket a weboldalon.
+Ezutan már a friss frontend fogad minket a weboldalon.
