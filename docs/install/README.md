@@ -70,16 +70,21 @@ ip6tables-save > /etc/iptables/rules.v6
 ```
 
 ## PostgreSQL konfigurálása
-A helyi gépről elfogadunk minden csatlakozást. Az internet felé nem is hallgatunk. Létrehozzuk a `laboradmin` adatbázist és a `postgres` usert.
+A helyi gépről elfogadunk minden csatlakozást. Az internet felé nem is hallgatunk. Létrehozzuk a `laboradmin` adatbázist és a `postgres` usert. Beállítjuk a teljes adatbázis óránkénti mentését és a statement logot.
 ```
-cat << EOF > /etc/postgresql/*/main/pg_hba.conf
-local all all peer
+cat << EOF > /etc/postgresql/9.6/main/pg_hba.conf
+local all all trust
 host all all 127.0.0.1/32 trust
 host all all ::1/128 trust
 EOF
+sed -i -e "/#log_statement\s*=/p" -e "s/^#log_statement\s*=.*$/log_statement='mod'/" postgresql.conf
 systemctl restart postgresql@9.6-main
 su -c 'psql -c "create database laboradmin"' postgres
 su -c 'psql -c "create user postgres"' postgres
+echo '0  *    * * *   root    /usr/local/bin/laboradmin_pg_backup_dump.sh' >> /etc/crontab
+cp laboradmin_pg_backup_dump.sh /usr/local/bin
+chmod a+x /usr/local/bin/laboradmin_pg_backup_dump.sh
+mkdir -p /var/backup/laboradmin
 ```
 
 ## Alkalmazások telepítése
