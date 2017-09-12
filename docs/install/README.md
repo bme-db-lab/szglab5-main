@@ -24,7 +24,7 @@ apt-get update
 
 ## Szükséges csomagok telepítése
 ```
-apt-get install nodejs postgresql iptables-persistent git ntp
+apt-get install nodejs postgresql iptables-persistent git ntp zip
 # csak frontend:
 apt-get install phantomjs
 ```
