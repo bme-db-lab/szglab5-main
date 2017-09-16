@@ -43,6 +43,12 @@ Ellenőrizzük a logokat, hogy nem történt-e hiba
 pm2 logs
 ```
 
+### Backup visszaállítás
+Első lépésben ürítjük az adatbázist (töröljük az alapértelmezett public sémát, majd újra létrehozzuk azt), ezután pedig az üres adatbázison futtatjuk a dump fájlban lévő sql parancsokat, amik aztán újraépítik az adatbázist.
+```
+(echo 'begin;drop schema public cascade;create schema public;';xz -cd backup.dump.xz ;echo 'commit;') | psql -U postgres laboradmin
+```
+
 ## szglab5-frontend
 A frontend Ember.js-ben készült. Az Ember.js statikus fajlokat general a `/srv/http/szglab5-frontend/dist` mappaba, amelyeket aztan a webszerver tud kiszolgalni. Ahol nincs másképp meghatározva, a parancsokat a frontend user neveben futtassuk.
 
