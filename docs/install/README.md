@@ -174,7 +174,7 @@ popd
 
 ## Service management
 ### Pm2 process manager a backendhez
-A [pm2](http://pm2.keymetrics.io/) manageli a backend és az apidoc példányokat. Ehhez létre kell hoznunk egy konfigurációs fájlt, ahol leírjuk, hogy mit és hogyan futtasson.
+A [pm2](http://pm2.keymetrics.io/) manageli a backend példányt. Ehhez létre kell hoznunk egy konfigurációs fájlt, ahol leírjuk, hogy mit és hogyan futtasson.
 
 Ezután telepítenünk kell egy systemd service fájlt, aminek segítségével elindul a pm2 a backend user nevében.
 
@@ -193,19 +193,8 @@ module.exports = {
                         name      : 'szglab5-backend',
                         script    : 'server.js',
                         env: {
-                                //COMMON_VARIABLE: 'true'
-                        },
-                        env_prod : {
                                 NODE_ENV: 'prod'
-                        },
-                        env_dev: {
-                                NODE_ENV: 'dev'
                         }
-                },
-
-                {
-                        name      : 'szglab5-apidoc',
-                        script    : 'apidoc.server.js'
                 }
         ]
 };
