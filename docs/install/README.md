@@ -87,6 +87,11 @@ chmod a+x /usr/local/bin/laboradmin_pg_backup_dump.sh
 mkdir -p /var/backup/laboradmin
 ```
 
+unaccent kiegészitő telepítése
+```
+echo 'CREATE EXTENSION unaccent' | psql -h localhost -d laboradmin -U postgres
+```
+
 ## Alkalmazások telepítése
 
 ### A frontendhez szükséges CLI eszközök
