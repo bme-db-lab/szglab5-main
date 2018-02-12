@@ -89,7 +89,7 @@ mkdir -p /var/backup/laboradmin
 
 unaccent kiegészitő telepítése
 ```
-echo 'CREATE EXTENSION unaccent' | psql -h localhost -d laboradmin -U postgres
+echo 'CREATE EXTENSION unaccent;' | psql -h localhost -d laboradmin -U postgres
 ```
 
 ## Alkalmazások telepítése
